@@ -9,9 +9,9 @@ isGameOver board = checkList (concat board) where
     checkList (h:t) | h > 0 = False 
                     | otherwise = checkList t
                     
-isPlaceable :: Int -> Int -> Int -> Bool -> [[Int]] -> Bool
-isPlaceable n x y dir [] = False
-isPlaceable n x y dir board | length board < n = False
+isShipPlaceable :: Int -> Int -> Int -> Bool -> [[Int]] -> Bool
+isShipPlaceable n x y dir [] = False
+isShipPlaceable n x y dir board | length board < n = False
                             | x < 0 = False 
                             | y < 0 = False 
                             | x > length board = False
@@ -24,4 +24,17 @@ isPlaceable n x y dir board | length board < n = False
                                                            | dir == True = isOccupied (n-1) (x+1) y dir board 
                                                            | dir == False = isOccupied (n-1) x (y+1) dir board
                                                            | otherwise = False
-                                                    
+
+
+placeShip :: Int -> Int -> Int -> Bool -> Int -> Int -> Int -> [[Int]] -> [[Int]]
+placeShip n x y dir currX currY size [] = [[]]
+placeShip n x y dir currX currY size (h:t) | size == 0 = (h:t)
+								| (dir == True) = (copyReplace n x 0 h): placeShip n (x+1) y dir (currX+1) currY (size-1) t
+						        | (currY == y) = (copyReplace n x 0 h): placeShip n x (y+1) dir currX (currY+1) (size-1) t
+						        | otherwise = h: placeShip n x (y+1) dir currX (currY + 1) (size) (t)
+
+
+copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
+copyReplace size x currX [] = []
+copyReplace size x currX (h:t) | (x==currX) = size: copyReplace size (x) (currX+1) (t)
+							   | otherwise = h: copyReplace size x (currX+1) (t)
