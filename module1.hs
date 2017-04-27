@@ -26,12 +26,16 @@ isShipPlaceable n x y dir board | length board < n = False
                                                            | otherwise = False
 
 
-placeShip :: Int -> Int -> Int -> Bool -> Int -> Int -> Int -> [[Int]] -> [[Int]]
-placeShip n x y dir currX currY size [] = [[]]
-placeShip n x y dir currX currY size (h:t) | size == 0 = (h:t)
-								| (dir == True) = (copyReplace n x 0 h): placeShip n (x+1) y dir (currX+1) currY (size-1) t
-						        | (currY == y) = (copyReplace n x 0 h): placeShip n x (y+1) dir currX (currY+1) (size-1) t
-						        | otherwise = h: placeShip n x (y+1) dir currX (currY + 1) (size) (t)
+placeShip :: Int -> Int -> Int -> Bool -> [[Int]] -> [[Int]]
+placeShip n x y dir board = placeShipBackground n x y dir 0 n board
+
+placeShipBackground :: Int -> Int -> Int -> Bool -> Int -> Int -> [[Int]] -> [[Int]]
+placeShipBackground n x y dir currY size [] = [[]]
+placeShipBackground n x y dir currY size (h:t) | size == 0 = (h:t)
+								| (dir == True) = placeShipBackground n (x+1) y dir currY (size-1) (replaced:t)
+						        | (currY == y) = (copyReplace n x 0 h): placeShipBackground n x (y+1) dir (currY+1) (size-1) t
+						        | otherwise = h: placeShipBackground n x (y+1) dir (currY + 1) (size) (t) where
+									replaced = (copyReplace n x 0 h)
 
 
 copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
