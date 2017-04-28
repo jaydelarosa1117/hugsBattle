@@ -36,6 +36,29 @@ placeShipBackground n x y dir currY size (h:t) | size == 0 = (h:t)
 						       				   | (currY == y) = (copyReplace n x 0 h): placeShipBackground n x (y+1) dir (currY+1) (size-1) t
 						        			   | otherwise = h: placeShipBackground n x (y+1) dir (currY + 1) (size) (t) where
 													replaced = (copyReplace n x 0 h)
+													
+
+boardToStr marker board = mapM_ (putStrLn . marker) board
+
+sqToStr [] = []
+
+sqToStr (h:t) = (show 0) ++ " " ++ sqToStr t 
+sqToStrCheat [] = []
+sqToStrCheat (h:t)  = show h ++ " " ++ sqToStrCheat t
+--header n = map (1)
+
+--sqToStr = putStrLn . unlines . map (map symbol)
+symbol _ = '.' 
+
+
+--sqToStrCheat = putStrLn . unlines . listCheatValues
+--listCheatValues = map (map ship)
+--ship 0 = '.'
+--ship 2 = '2'
+--ship 3 = '3'
+--ship 4 = '4'
+--ship 5 = '5'
+
 
 
 copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
