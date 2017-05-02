@@ -1,15 +1,20 @@
 module Board where
 {-# LANGUAGE ParallelListComp #-}
 
+--Board module created by: Marina Chong, Jessica Dozal, Jose de la Rosa
+
+--Creates a board with zeros of size n
 mkBoard :: Int -> [[Int]]
 mkBoard n = replicate n (replicate n 0)
 
+--Checks if all ships are sunk
 isGameOver :: [[Int]] -> Bool
 isGameOver board = checkList (concat board) where 
     checkList [] = True
     checkList (h:t) | h > 0 = False 
                     | otherwise = checkList t
-                    
+ 
+--Checks if ship fits in the given coordinates                    
 isShipPlaceable :: Int -> Int -> Int -> Bool -> [[Int]] -> Bool
 isShipPlaceable n x y dir board | length board < n = False
                             | x < 0 = False 
@@ -26,6 +31,7 @@ isShipPlaceable n x y dir board | length board < n = False
                                                            | otherwise = False
 
 
+--Places a ship in the board
 placeShip :: Int -> Int -> Int -> Bool -> [[Int]] -> [[Int]]
 placeShip n x y dir board = placeShipBackground n x y dir 0 n board
 
@@ -37,31 +43,36 @@ placeShipBackground n x y dir currY size (h:t) | size == 0 = (h:t)
 						        			                     | otherwise = h: placeShipBackground n x y dir (currY + 1) (size) (t) 
                                                where replaced = (copyReplace n x 0 h)
 
-
+--Displays board
 boardToStr marker board = mapM_ (putStrLn . marker) board
 
+--Changes square to a string representation. Takes board with hidden ships.
+--If a ship is hit, changes the square to an X. If the board is hit, changes to square to O
 sqToStr [] = []
 sqToStr (h:t) = (showShots h) ++ " " ++ sqToStr t 
 showShots n = if n == -1 then id "O" else if n < -1 then id "X" else id "."
  
+ --Changes square to a string representation. Takes board with visible ships.
+--If a ship is hit, changes the square to an X. If the board is hit, changes to square to O
 sqToStrCheat [] = []
 sqToStrCheat (h:t)  = (showCheatShots h) ++ " " ++ sqToStrCheat t
 showCheatShots n = if n == 0 then id "." else if n == -1 then id "O" else if n < -1 then id "X" else show n
 
+--Takes a list and return a new list with the given symbol inserted at position x
 copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
-copyReplace size x currX [] = []
-copyReplace size x currX (h:t) | (x==currX) = size: copyReplace size (x) (currX+1) (t)
-							                 | otherwise = h: copyReplace size x (currX+1) (t)
+copyReplace symbol x currX [] = []
+copyReplace symbol x currX (h:t) | (x==currX) = symbol: copyReplace symbol (x) (currX+1) (t)
+							                 | otherwise = h: copyReplace symbol x (currX+1) (t)
 
 
-
+--Checks if a square in te board is hit
 isHit :: Int -> Int -> [[Int]] -> Bool
 isHit x y [] = False
 isHit x y board | (board !! y !! x) == -2 = True
 				| otherwise = False
 
 
-
+--Sends a shot to a square in the board
 hitBoard :: Int -> Int -> [[Int]] -> [[Int]]
 hitBoard x y board | (x < 0) || (y < 0) = board
 				   | (x > length board) || (y > length board) = board
