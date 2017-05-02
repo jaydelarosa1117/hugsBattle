@@ -1,3 +1,4 @@
+module Board where
 {-# LANGUAGE ParallelListComp #-}
 
 mkBoard :: Int -> [[Int]]
@@ -27,36 +28,33 @@ isShipPlaceable n x y dir board | length board < n = False
 
 
 placeShip :: Int -> Int -> Int -> Bool -> [[Int]] -> [[Int]]
-placeShip n x y dir board = placeShipBackground n x y dir 0 n board
+placeShip n x y dir board | isShipPlaceable n x y dir board == False = board
+                          | placeShipBackground n x y dir 0 n board
 
 placeShipBackground :: Int -> Int -> Int -> Bool -> Int -> Int -> [[Int]] -> [[Int]]
 placeShipBackground n x y dir currY size [] = [[]]
 placeShipBackground n x y dir currY size (h:t) | size == 0 = (h:t)
-											   | (dir == True) = placeShipBackground n (x+1) y dir currY (size-1) (replaced:t)
-						       				   | (currY == y) = (copyReplace n x 0 h): placeShipBackground n x (y+1) dir (currY+1) (size-1) t
-						        			   | otherwise = h: placeShipBackground n x (y+1) dir (currY + 1) (size) (t) where
-													replaced = (copyReplace n x 0 h)
-													
+											                         | (dir == True) = placeShipBackground n (x+1) y dir currY (size-1) (replaced:t)
+						       				                     | (currY == y) = (copyReplace n x 0 h): placeShipBackground n x (y+1) dir (currY+1) (size-1) t
+						        			                     | otherwise = h: placeShipBackground n x (y+1) dir (currY + 1) (size) (t) 
+                                               where replaced = (copyReplace n x 0 h)
+
 
 boardToStr marker board = mapM_ (putStrLn . marker) board
 
 sqToStr [] = []
 sqToStr (h:t) = (showShots h) ++ " " ++ sqToStr t 
-showShots n = if n == -1 then show 'X' else if n < -1 then show 'O' else show 0
+showShots n = if n == -1 then show 'O' else if n < -1 then show 'X' else show 0
  
-
-
 sqToStrCheat [] = []
 sqToStrCheat (h:t)  = (showCheatShots h) ++ " " ++ sqToStrCheat t
-showCheatShots (-1) = show 'X'
-showCheatShots n = if n < -1 then show 'O' else show n
-
-
+showCheatShots (-1) = show 'O'
+showCheatShots n = if n < -1 then show 'X' else show n
 
 copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
 copyReplace size x currX [] = []
 copyReplace size x currX (h:t) | (x==currX) = size: copyReplace size (x) (currX+1) (t)
-							   | otherwise = h: copyReplace size x (currX+1) (t)
+							                 | otherwise = h: copyReplace size x (currX+1) (t)
 
 
 
@@ -75,5 +73,6 @@ hitBoard x y board | (x < 0) || (y < 0) = board
 
 
 hitBoardBackground :: Int -> Int -> Int -> [[Int]] -> [[Int]]
-hitBoardBackground x y currY (h:t) | (currY == y) = (copyReplace (-2) x 0 (h)) : t
-								   | otherwise = h : hitBoardBackground x y (currY+1) (t)
+hitBoardBackground x y currY (h:t) | (currY == y) && (((h:t) !! 0 !! x) > 0) = (copyReplace (-2) x 0 (h)) : t
+                                   | (currY == y) && (((h:t) !! 0 !! x) == 0) = (copyReplace (-1) x 0 (h)) : t
+								                   | otherwise = h : hitBoardBackground x y (currY+1) (t)
