@@ -5,12 +5,16 @@ import System.Random
 import System.IO.Unsafe
 import Board
 
+--Main module created by: Marina Chong, Jessica Dozal, Jose de la Rosa
+
 rand :: Bool -> Int
 rand x = unsafePerformIO randomIO
 
+--Creates a random number between 0 and n
 generateRandom :: Int -> Int
 generateRandom n = ((mod (rand True) n))
 
+--Takes a list with size of each ship and places them randomly on the board
 placeShips [] board = board
 placeShips (h:t) board = do 
 						 show x
@@ -22,6 +26,7 @@ placeShips (h:t) board = do
 						 {x = generateRandom 10; y = generateRandom 10; dir = generateRandom 2}
 
 
+--Gets shot coordinates from the user and shoots at the board
 getXY marker board = do
        putStrLn "Enter a positive x value"
        line <- getLine
@@ -46,6 +51,8 @@ getXY marker board = do
            putStrLn "Invalid input!"
            getXY marker board
 
+--Used to play with a board with hidden ships
 main = getXY sqToStr (placeShips [5,4,3,2,2] (mkBoard 10))
 
+--Used to play with a board with visible ships
 mainCheat = getXY sqToStrCheat (placeShips [5,4,3,2,2] (mkBoard 10))
