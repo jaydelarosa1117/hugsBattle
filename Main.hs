@@ -13,13 +13,16 @@ generateRandom n = ((mod (rand True) n))
 
 placeShips [] board = board
 placeShips (h:t) board = do 
+						 show x
+						 show y
+						 show dir
 						 if isShipPlaceable h x y (dir == 1) board
 						 then placeShips t (placeShip h x y (dir==1) board)
 						 else placeShips (h:t) board where
-						 {x = generateRandom 11; y = generateRandom 11; dir = generateRandom 2}
+						 {x = generateRandom 10; y = generateRandom 10; dir = generateRandom 2}
 
 
-getXY board =	do
+getXY marker board = do
        putStrLn "Enter a positive x value"
        line <- getLine
        let parsed = reads line :: [(Int, String)] in
@@ -35,12 +38,14 @@ getXY board =	do
          		  then getX' board
          		  else let (y, _) = head parsed in
            		  	if y >= 0 
-           		  	then (boardToStr sqToStr (hitBoard x y board))
+           		  	then (boardToStr marker (hitBoard x y board))
            		  	else getX' board
            else getX' board
        where
          getX' board = do
            putStrLn "Invalid input!"
-           getXY board
+           getXY marker board
 
-main = getXY (placeShips [5,4,3,2,2] (mkBoard 10))
+main = getXY sqToStr (placeShips [5,4,3,2,2] (mkBoard 10))
+
+mainCheat = getXY sqToStrCheat (placeShips [5,4,3,2,2] (mkBoard 10))
