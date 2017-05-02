@@ -34,7 +34,7 @@ getXY marker board = do
          if length parsed == 0
          then getX' board
          else let (x, _) = head parsed in
-           if x >= 0 
+           if x >= 0 && x < length board
            then do
        			putStrLn "Enter a positive y value"
        			line <- getLine
@@ -42,8 +42,11 @@ getXY marker board = do
          		  if length parsed == 0
          		  then getX' board
          		  else let (y, _) = head parsed in
-           		  	if y >= 0 
-           		  	then (boardToStr marker (hitBoard x y board))
+           		  	if y >= 0 && y < length board
+           		  	then do 
+           		  		boardToStr marker (hitBoard x y board)
+           		  		if isGameOver (hitBoard x y board) then putStrLn "Congrats"
+           		  		else getXY marker (hitBoard x y board)
            		  	else getX' board
            else getX' board
        where
@@ -52,7 +55,7 @@ getXY marker board = do
            getXY marker board
 
 --Used to play with a board with hidden ships
-main = getXY sqToStr (placeShips [5,4,3,2,2] (mkBoard 10))
+main = getXY sqToStr (placeShips [5,4,3,3,2] (mkBoard 10))
 
 --Used to play with a board with visible ships
-mainCheat = getXY sqToStrCheat (placeShips [5,4,3,2,2] (mkBoard 10))
+mainCheat = getXY sqToStrCheat (placeShips [5,4,3,3,2] (mkBoard 10))
