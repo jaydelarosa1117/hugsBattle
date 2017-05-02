@@ -11,7 +11,6 @@ isGameOver board = checkList (concat board) where
                     | otherwise = checkList t
                     
 isShipPlaceable :: Int -> Int -> Int -> Bool -> [[Int]] -> Bool
-isShipPlaceable n x y dir [] = False
 isShipPlaceable n x y dir board | length board < n = False
                             | x < 0 = False 
                             | y < 0 = False 
@@ -28,15 +27,14 @@ isShipPlaceable n x y dir board | length board < n = False
 
 
 placeShip :: Int -> Int -> Int -> Bool -> [[Int]] -> [[Int]]
-placeShip n x y dir board | isShipPlaceable n x y dir board == False = board
-                          | placeShipBackground n x y dir 0 n board
+placeShip n x y dir board = placeShipBackground n x y dir 0 n board
 
 placeShipBackground :: Int -> Int -> Int -> Bool -> Int -> Int -> [[Int]] -> [[Int]]
 placeShipBackground n x y dir currY size [] = [[]]
 placeShipBackground n x y dir currY size (h:t) | size == 0 = (h:t)
-											                         | (dir == True) = placeShipBackground n (x+1) y dir currY (size-1) (replaced:t)
+											                         | (currY == y && dir == True) = placeShipBackground n (x+1) y dir currY (size-1) (replaced:t)
 						       				                     | (currY == y) = (copyReplace n x 0 h): placeShipBackground n x (y+1) dir (currY+1) (size-1) t
-						        			                     | otherwise = h: placeShipBackground n x (y+1) dir (currY + 1) (size) (t) 
+						        			                     | otherwise = h: placeShipBackground n x y dir (currY + 1) (size) (t) 
                                                where replaced = (copyReplace n x 0 h)
 
 
@@ -44,12 +42,11 @@ boardToStr marker board = mapM_ (putStrLn . marker) board
 
 sqToStr [] = []
 sqToStr (h:t) = (showShots h) ++ " " ++ sqToStr t 
-showShots n = if n == -1 then show 'O' else if n < -1 then show 'X' else show 0
+showShots n = if n == -1 then id "O" else if n < -1 then id "X" else id "."
  
 sqToStrCheat [] = []
 sqToStrCheat (h:t)  = (showCheatShots h) ++ " " ++ sqToStrCheat t
-showCheatShots (-1) = show 'O'
-showCheatShots n = if n < -1 then show 'X' else show n
+showCheatShots n = if n == 0 then id "." else if n == -1 then id "O" else if n < -1 then id "X" else show n
 
 copyReplace :: Int -> Int -> Int -> [Int] -> [Int]
 copyReplace size x currX [] = []
